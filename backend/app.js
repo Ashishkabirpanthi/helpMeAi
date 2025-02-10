@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
+import userRoutes from './routes/user.router.js';
+
 import morgan from 'morgan';
 import connect from './db/db.js';
 
@@ -11,6 +13,7 @@ app.use(morgan('dev'));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/users', userRoutes);
 
 
 app.get('/', (req, res) =>{
