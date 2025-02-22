@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import express from 'express';
 import userRoutes from './routes/user.router.js';
+import projectRoutes from './routes/project.router.js';
 import morgan from 'morgan';
 import connect from './db/db.js';
 import cookieParser from 'cookie-parser';
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use('/users', userRoutes);
+app.use('/project', projectRoutes);
 
 
 app.get('/', (req, res) =>{
