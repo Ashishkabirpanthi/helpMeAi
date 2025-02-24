@@ -10,6 +10,11 @@ export const createProject = async(
     if(!userId){
         throw new Error('userId is required')
     }
+    const existingProject = await projectModel.findOne({ name });
+    if (existingProject) {
+        throw new Error('Project already exists.Create unique project');
+    }
+    
     const project = await projectModel.create({
         name,
         users:[userId]
