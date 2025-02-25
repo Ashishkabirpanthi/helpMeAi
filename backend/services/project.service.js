@@ -1,4 +1,5 @@
 import projectModel from "../models/project.model.js";
+import mongoose from 'mongoose'
 
 export const createProject = async(
     name,
@@ -33,4 +34,45 @@ export const getAllProjectbyUserId = async(
         users:userId
     });
     return allProject;
+}
+
+export const addUserToProject = async(
+    projectId,users,userId
+) => {
+    if(!projectId){
+        throw new Error('ProjectId is required');
+    }
+    if(!users){
+        throw new Error('Users must be required');
+    }
+    if(!userId){
+        throw new Error('UserId must be required');
+
+    }
+    if(!mongoose.Types.ObjectId.isValid(projectId)){
+        throw new Error('Invalid project');
+    }
+    if(!Array.isArray(users) || users.some(userId => !mongoose.Types.ObjectId.isValid(userId))){
+        throw new Error('Invalid userId in users array');
+    }
+    const projects = await projectModel.find({
+        _id:projectId,
+        users:userId
+    })
+    if(!projects){
+        throw new Error('User Doest blongs to this project');
+    }
+    const updatedProject = await projectModel.findOneAndUpdate({
+        _id:projectId
+    },{
+        $addToSet:{
+            users:{
+                $each: users
+            }
+        }
+    },{
+        new: true
+    })
+
+    return updatedProject
 }
