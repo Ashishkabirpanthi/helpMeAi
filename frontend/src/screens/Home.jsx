@@ -1,24 +1,32 @@
 // src/components/Home.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from '../config/axios';
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(null);
   const [projectName, setProjectName] = useState('');
+  const [project, setProject] = useState([])
+  
+  useEffect (()=>{
+    axios.get('/project/all').then((res)=>{
+      setProject(res.data.projects)
+  }).catch((err) => {
+    console.log(err)
+  })
+  },[])
 
-  // Handle modal submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (projectName.trim()) {
       console.log('Project name entered:', projectName);
-      setProjectName(''); 
+      setProjectName('');
       setIsModalOpen(false);
     }
-    axios.post('/project/create',{
-      name:projectName,
-    }).then((res)=>{
+    axios.post('/project/create', {
+      name: projectName,
+    }).then((res) => {
       console.log(res)
-    }).catch((err)=>{
+    }).catch((err) => {
       console.log(err)
     })
   };
@@ -34,9 +42,21 @@ const Home = () => {
           <i className="ri-add-line text-xl"></i>
           <span>New Project</span>
         </button>
+        
+        {
+          <div className="flex flex-col gap-4 max-h-[calc(100vh-12rem)] overflow-y-auto no-scrollbar">
+          {project.map((pro) => (
+              <div
+                  key={pro._id}
+                  className="p-5 bg-gray-800 border border-slate-800 rounded-sm text-white"
+              >
+                  {pro.name}
+              </div>
+          ))}
+      </div>
+        }
       </div>
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
           <div className="bg-gray-800 rounded-xl shadow-2xl shadow-gray-900/50 p-6 max-w-sm w-full">
@@ -56,6 +76,7 @@ const Home = () => {
                   placeholder="Enter project name"
                   required
                 />
+                
               </div>
               <div className="flex justify-end space-x-3">
                 <button
