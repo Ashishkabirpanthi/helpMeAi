@@ -1,5 +1,6 @@
 // src/components/Home.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'
 import axios from '../config/axios';
 import 'remixicon/fonts/remixicon.css'
 
@@ -7,6 +8,8 @@ const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(null);
   const [projectName, setProjectName] = useState('');
   const [project, setProject] = useState([])
+
+  const navigate = useNavigate()
   
   useEffect (()=>{
     axios.get('/project/all').then((res)=>{
@@ -49,6 +52,9 @@ const Home = () => {
           {project.map((pro) => (
               <div
                   key={pro._id}
+                  onClick={()=>{navigate('/project',{
+                    state:{pro}
+                  })}}
                   className="p-5 bg-gray-800 border border-slate-800 rounded-sm text-white">
                   {pro.name}
                   <i className="ri-user-line ml-8">{
