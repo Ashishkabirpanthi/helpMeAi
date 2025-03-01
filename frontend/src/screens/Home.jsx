@@ -1,6 +1,7 @@
 // src/components/Home.jsx
 import React, { useState, useEffect } from 'react';
 import axios from '../config/axios';
+import 'remixicon/fonts/remixicon.css'
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(null);
@@ -48,10 +49,12 @@ const Home = () => {
           {project.map((pro) => (
               <div
                   key={pro._id}
-                  className="p-5 bg-gray-800 border border-slate-800 rounded-sm text-white"
-              >
+                  className="p-5 bg-gray-800 border border-slate-800 rounded-sm text-white">
                   {pro.name}
+                  <i className="ri-user-line ml-8">{
+                  pro.users.length}</i>
               </div>
+
           ))}
       </div>
         }
