@@ -10,29 +10,31 @@ const Home = () => {
   const [project, setProject] = useState([])
 
   const navigate = useNavigate()
-  
-  useEffect (()=>{
-    axios.get('/project/all').then((res)=>{
+
+  useEffect(() => {
+    axios.get('/project/all').then((res) => {
       setProject(res.data.projects)
-  }).catch((err) => {
-    console.log(err)
-  })
-  },[])
+    }).catch((err) => {
+      console.log(err)
+    })
+  }, [])
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (projectName.trim()) {
       console.log('Project name entered:', projectName);
-      setProjectName('');
-      setIsModalOpen(false);
     }
-    axios.post('/project/create', {
-      name: projectName,
-    }).then((res) => {
-      console.log(res)
-    }).catch((err) => {
-      console.log(err)
-    })
+    axios.post('/project/create', { name: projectName })
+      .then((res) => {
+        console.log('Project created:', res.data);
+
+        setProject((prevProjects) => [...prevProjects, res.data]);
+        setIsModalOpen(false);
+        setProjectName('');
+      })
+      .catch((err) => {
+        console.error('Error creating project:', err);
+      });
   };
 
 
@@ -46,23 +48,25 @@ const Home = () => {
           <i className="ri-add-line text-xl"></i>
           <span>New Project</span>
         </button>
-        
+
         {
           <div className="flex flex-col gap-4 max-h-[calc(100vh-12rem)] overflow-y-auto no-scrollbar">
-          {project.map((pro) => (
+            {project.map((pro) => (
               <div
-                  key={pro._id}
-                  onClick={()=>{navigate('/project',{
-                    state:{pro}
-                  })}}
-                  className="p-5 bg-gray-800 border border-slate-800 rounded-sm text-white">
-                  {pro.name}
-                  <i className="ri-user-line ml-8">{
+                key={pro._id}
+                onClick={() => {
+                  navigate('/project', {
+                    state: { pro }
+                  })
+                }}
+                className="p-5 bg-gray-800 border border-slate-800 rounded-sm text-white">
+                {pro.name}
+                <i className="ri-user-line ml-8">{
                   pro.users.length}</i>
               </div>
 
-          ))}
-      </div>
+            ))}
+          </div>
         }
       </div>
 
@@ -85,7 +89,7 @@ const Home = () => {
                   placeholder="Enter project name"
                   required
                 />
-                
+
               </div>
               <div className="flex justify-end space-x-3">
                 <button

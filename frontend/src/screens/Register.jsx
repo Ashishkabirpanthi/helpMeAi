@@ -15,6 +15,9 @@ const Register = () => {
         password
     }).then((res)=>{
         console.log(res.data);
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+      }
         navigate('/');
     }).catch((error)=>{
         console.log(error.response.data);
