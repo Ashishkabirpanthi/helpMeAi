@@ -76,7 +76,9 @@ export const allUserController = async(req,res) =>{
             email:req.user.email
         })
         const allUsers = await userService.getAllUser(loggedInUser)
-        res.status(200).send(allUser)
+        res.status(200).json({
+            users: allUsers
+        })
     } catch (error) {
         console.log(error)
         res.status(400).json({

@@ -22,7 +22,7 @@ app.use('/users', userRoutes);
 app.use('/project', projectRoutes);
 
 
-app.get('/', (req, res) =>{
+app.get('/', (res) =>{
     res.send("hello world!");
 });
 

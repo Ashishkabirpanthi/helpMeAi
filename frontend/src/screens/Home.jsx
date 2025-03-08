@@ -27,7 +27,6 @@ const Home = () => {
     axios.post('/project/create', { name: projectName })
       .then((res) => {
         console.log('Project created:', res.data);
-
         setProject((prevProjects) => [...prevProjects, res.data]);
         setIsModalOpen(false);
         setProjectName('');
@@ -54,7 +53,9 @@ const Home = () => {
             {project.map((pro) => (
               <div
                 key={pro._id}
+                
                 onClick={() => {
+                  console.log(pro),
                   navigate('/project', {
                     state: { pro }
                   })
