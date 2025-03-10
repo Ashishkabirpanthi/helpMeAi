@@ -1,6 +1,7 @@
 import React,{useState,useEffect} from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../config/axios';
+import { initializeSocket, receiveMessage, sendMessage } from '../config/socket';
 
 
 const project = () => {
@@ -44,6 +45,8 @@ const project = () => {
       }).catch((err)=>{
         console.log(err)
       })
+
+      initializeSocket()
     },[])
     
   return (

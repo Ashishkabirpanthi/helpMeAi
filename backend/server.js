@@ -11,7 +11,13 @@ const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
-const io = new Server(server);
+const io = new Server(server,
+  {
+    cors:{
+      origin:"http://localhost:5177"
+    }
+  }
+);
 io.on('connection', socket  => {
   console.log('user Connected')
   socket.on('event', data => { /* … */ });
@@ -26,7 +32,6 @@ io.use((socket, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded)
 
 
     if(!decoded){
