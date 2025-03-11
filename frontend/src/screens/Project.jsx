@@ -1,7 +1,8 @@
-import React,{useState,useEffect} from 'react';
+import React,{useState,useEffect,useContext} from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../config/axios';
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket';
+import { UserContext } from '../context/user.context'
 
 
 const project = () => {
@@ -12,6 +13,9 @@ const project = () => {
     const [selectedUserId ,setSelectedUserId] = useState([]);
     const [users,setUsers] = useState([]);
     const [project,setProject] = useState(location.state.pro);
+    const [message,setMessage] = useState('')
+    const { user } = useContext(UserContext);
+
     function addColaborators(){
       axios.put('/project/add-user',{
         projectId:location.state.pro._id,
@@ -46,8 +50,22 @@ const project = () => {
         console.log(err)
       })
 
-      initializeSocket()
+      initializeSocket(project._id)
+
+      receiveMessage('project-message', data => {
+        console.log(data)
+      })
+
     },[])
+
+    const send = () =>{
+      console.log(user)
+      sendMessage('project-message', {
+        message,
+        sender: user._id
+      })
+      setMessage("")
+    }
     
   return (
     <main className='w-screen h-screen flex'>
@@ -91,8 +109,8 @@ const project = () => {
             </div>
           </div>
           <div className="bg-zinc-300 input-field h-[8.2%] flex items-center justify-center gap-2">
-            <input className='w-[88%] h-[70%] rounded-sm p-1 outline-none border-none placeholder:ring-black font-mono' type="text" placeholder='Enter your message' />
-            <button><i className="ri-send-plane-2-fill text-xl"></i></button>
+            <input value = {message} onChange = {(e)=> setMessage(e.target.value)} className='w-[88%] h-[70%] rounded-sm p-1 outline-none border-none placeholder:ring-black font-mono' type="text" placeholder='Enter your message' />
+            <button onClick={send}><i className="ri-send-plane-2-fill text-xl"></i></button>
           </div>
         </div>
         <div className={`w-full h-full bg-green-100 absolute transition-all left-[-100%] ${isSidePanelOpen?"translate-x-full":''}`}>
