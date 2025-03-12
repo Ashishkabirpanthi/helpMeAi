@@ -4,7 +4,6 @@ const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 });
 
-// Automatically add token before each request
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem("token");
