@@ -51,7 +51,6 @@ const project = () => {
       })
 
       initializeSocket(project._id)
-
       receiveMessage('project-message', data => {
         console.log(data)
       })
