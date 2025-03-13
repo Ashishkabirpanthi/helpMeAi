@@ -2,7 +2,7 @@ import React,{useState,useEffect,useContext} from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from '../config/axios';
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket';
-import { UserContext } from '../context/user.context'
+import { UserContext } from '../context/user.context';
 
 
 const project = () => {
@@ -60,9 +60,9 @@ const project = () => {
     const send = () =>{
       console.log(user)
       sendMessage('project-message', {
-        message,
+        message:message,
         sender: user._id
-      })
+      });
       setMessage("")
     }
     
