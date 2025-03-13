@@ -1,5 +1,5 @@
 import React,{useState,useEffect,useContext} from 'react';
-import { useLocation } from 'react-router-dom';
+import { data, useLocation } from 'react-router-dom';
 import axios from '../config/axios';
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket';
 import { UserContext } from '../context/user.context';
@@ -38,7 +38,24 @@ const project = () => {
         return newSelectedUser
       })
     }
+
+    
+    const send = () =>{
+      sendMessage('project-message', {
+        message,
+        sender: user._id,
+      }
+    );
+      setMessage("")
+    }
+
     useEffect(()=>{
+
+      initializeSocket(project._id);
+      receiveMessage('project-message', data => {
+        console.log(data)
+      })
+
       axios.get('/users/all').then((res)=>{
         setUsers(res.data.users)
         }).catch((error)=>{
@@ -50,21 +67,7 @@ const project = () => {
         console.log(err)
       })
 
-      initializeSocket(project._id)
-      receiveMessage('project-message', data => {
-        console.log(data)
-      })
-
     },[])
-
-    const send = () =>{
-      console.log(user)
-      sendMessage('project-message', {
-        message:message,
-        sender: user._id
-      });
-      setMessage("")
-    }
     
   return (
     <main className='w-screen h-screen flex'>

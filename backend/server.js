@@ -39,6 +39,7 @@ io.use(async(socket, next) => {
     }
     
     socket.project = await projectModel.findById(projectId);
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
 
@@ -54,11 +55,12 @@ io.use(async(socket, next) => {
 })
 
 io.on('connection', socket  => {
+  socket.roomId = socket.project._id.toString();
   console.log('user Connected')
-  socket.join(socket.project._id);
+  socket.join(socket.roomId);
 
   socket.on('project-message', data => {
-    socket.broadcast.to(socket.project_id).emit('project-message',data);
+    io.to(socket.roomId).emit('project-message',data)
   })
 
   socket.on('event', data => { /* … */ });
