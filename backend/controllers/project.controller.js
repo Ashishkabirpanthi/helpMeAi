@@ -1,6 +1,7 @@
 import *as projectService from '../services/project.service.js'
 import userModel from '../models/user.model.js';
 import {validationResult} from 'express-validator';
+import chatModel from '../models/chat.model.js';
 
 export const createProject = async(req,res) => {
     const errors = validationResult(req);
@@ -83,3 +84,27 @@ export const getProjectById = async(req,res) =>{
         })
     }
 }
+
+export const saveMessage = async (req, res) => {
+  const { projectId, sender, message } = req.body;
+  console.log(sender,message);
+  try {
+    const newMessage = new chatModel({ projectId, sender, message });
+    await newMessage.save();
+
+    res.status(201).json(newMessage);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to save message" });
+  }
+};
+
+export const getProjectChats = async (req, res) => {
+    const { projectId } = req.params;
+    try {
+      const chats = await chatModel.find({ projectId }).populate("sender","email");
+      res.status(200).json(chats);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to retrieve messages"});
+    }
+  };
+  

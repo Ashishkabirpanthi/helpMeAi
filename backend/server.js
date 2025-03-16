@@ -59,8 +59,8 @@ io.on('connection', socket  => {
   console.log('user Connected')
   socket.join(socket.roomId);
 
-  socket.on('project-message', data => {
-    socket.broadcast.to(socket.roomId).emit('project-message',data)
+  socket.on('project-message', (data) => {
+    socket.broadcast.to(socket.roomId).emit('project-message', data)
   })
 
   socket.on('disconnect', () => {

@@ -25,4 +25,14 @@ router.get('/get-project/:projectId',
     projectController.getProjectById
 )
 
+router.post('/chat',
+    authMiddleware.authUser,
+    projectController.saveMessage
+)
+
+router.get('/get-chat/:projectId',
+    authMiddleware.authUser,
+    projectController.getProjectChats
+)
+
 export default router;
