@@ -17,6 +17,32 @@ const project = () => {
   const { user } = useContext(UserContext);
   const messageBox = useRef(null);
 
+  function saveMessage(){
+    axios.post('/project/chat',{
+      projectId: location.state.pro._id,
+      sender: user,
+      message:message,
+    }
+    ).then((res)=>{
+      console.log(res.data)
+    }).catch((error)=>{
+      console.log(error)
+    })
+  }
+
+  function fetchChats(){
+    axios.get(`/project/get-chat/${location.state.pro._id}`).then((res)=>{
+      console.log(res.data);
+    }).catch((error)=>{
+      console.log(error);
+    })
+  }
+  useEffect(() => {
+    if (location.state.pro._id) {
+      fetchChats();
+    }
+  }, [location.state.pro._id]);
+
   function addColaborators() {
     axios.put('/project/add-user', {
       projectId: location.state.pro._id,
@@ -49,6 +75,7 @@ const project = () => {
 
     );
     setMessage("")
+    saveMessage()
   }
 
   useEffect(() => {
@@ -102,7 +129,7 @@ const project = () => {
   }
 
   const scrollToBottom = () => {
-      messageBox.current.scrollTop = messageBox.current.scrollHeight;
+    messageBox.current.scrollTop = messageBox.current.scrollHeight;
   };
 
   return (
