@@ -101,7 +101,7 @@ export const saveMessage = async (req, res) => {
 export const getProjectChats = async (req, res) => {
     const { projectId } = req.params;
     try {
-      const chats = await chatModel.find({ projectId }).populate("sender","email");
+      const chats = await chatModel.find({ projectId }).populate("sender","email").sort({timestamp:1});
       res.status(200).json(chats);
     } catch (error) {
       res.status(500).json({ error: "Failed to retrieve messages"});

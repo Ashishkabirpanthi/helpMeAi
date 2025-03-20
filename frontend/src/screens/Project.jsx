@@ -75,7 +75,7 @@ const project = () => {
   const send = () => {
     const messageObj = {message,sender:user};
     sendMessage('project-message', messageObj);
-    setChat((prev) => [...prev,{...messageObj,sender:{_id:user._id,email:user.email}}]);
+    setChat((prev) => [...prev,{...messageObj,sender:{_id:user._id,email:user.email},timestamp: new Date()}]);
     setMessage("");
     saveMessage();
   }
@@ -104,6 +104,15 @@ const project = () => {
     if (messageBoxRef.current) {
       messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
     }
+  };
+
+  const formatTime = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    return new Date(timestamp).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
   };
 
   return (
@@ -143,6 +152,7 @@ const project = () => {
                 <div key={chat._id || Math.random()} className={`max-w-56 flex flex-col p-2 bg-slate-400 w-fit rounded-md m-1 ${chat.sender._id === user._id?'ml-auto':''}`}>
                    <small className='text-xm opacity-65'>{chat.sender.email}</small>
                    <p className='text-sm break-words'>{chat.message}</p>
+                   <p className='text-[10px] opacity-65 text-right'>{formatTime(chat.timestamp)}</p>
                 </div>
               ))
             }
