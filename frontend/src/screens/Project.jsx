@@ -15,12 +15,17 @@ const project = () => {
   const [project, setProject] = useState(location.state.pro);
   const [message, setMessage] = useState('')
   const { user } = useContext(UserContext);
-  const messageBox = useRef(null);
+  const messageBoxRef = useRef(null);
+  const [allChat ,setChat] = useState([])
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [allChat]);
+  
   function saveMessage(){
     axios.post('/project/chat',{
       projectId: location.state.pro._id,
-      sender: user,
+      sender: user._id,
       message:message,
     }
     ).then((res)=>{
@@ -29,10 +34,9 @@ const project = () => {
       console.log(error)
     })
   }
-
   function fetchChats(){
     axios.get(`/project/get-chat/${location.state.pro._id}`).then((res)=>{
-      console.log(res.data);
+      setChat(res.data)
     }).catch((error)=>{
       console.log(error);
     })
@@ -42,6 +46,7 @@ const project = () => {
       fetchChats();
     }
   }, [location.state.pro._id]);
+
 
   function addColaborators() {
     axios.put('/project/add-user', {
@@ -68,22 +73,18 @@ const project = () => {
 
 
   const send = () => {
-    sendMessage('project-message', {
-      message,
-      sender: user,
-    }, appendOutgoingMessage(message)
-
-    );
-    setMessage("")
-    saveMessage()
+    const messageObj = {message,sender:user};
+    sendMessage('project-message', messageObj);
+    setChat((prev) => [...prev,{...messageObj,sender:{_id:user._id,email:user.email}}]);
+    setMessage("");
+    saveMessage();
   }
 
   useEffect(() => {
 
     initializeSocket(project._id);
     receiveMessage('project-message', data => {
-      console.log(data)
-      appendIncomingMessage(data)
+      setChat((prev)=>[...prev,data]);
     })
 
     axios.get('/users/all').then((res) => {
@@ -99,37 +100,10 @@ const project = () => {
 
   }, [])
 
-  function appendIncomingMessage(messageObj) {
-    if (messageObj.message !== "") {
-      const messageBox = document.querySelector('.message-box');
-      const message = document.createElement('div');
-      message.classList.add('max-w-56', 'flex', 'flex-col', 'p-2', 'bg-slate-400', 'w-fit', 'rounded-md', 'm-1');
-      message.innerHTML = `
-      <small className='text-xm opacity-65'>${messageObj.sender.email}</small>
-              <p className='text-sm break-words'>${messageObj.message}</p>
-      `
-      messageBox.appendChild(message);
-      scrollToBottom();
-    }
-  }
-
-  function appendOutgoingMessage(messageObj) {
-    if (messageObj !== "") {
-      const messageBox = document.querySelector('.message-box');
-      const message = document.createElement('div');
-      message.classList.add('ml-auto', 'max-w-56', 'flex', 'flex-col', 'p-2', 'bg-slate-400', 'w-fit', 'rounded-md', 'm-1');
-      message.innerHTML = `
-      <small className='text-xm opacity-65'>${user.email}</small>
-      <p className='text-sm break-words'>${messageObj}</p>
-      `
-      messageBox.appendChild(message);
-      scrollToBottom();
-    }
-
-  }
-
   const scrollToBottom = () => {
-    messageBox.current.scrollTop = messageBox.current.scrollHeight;
+    if (messageBoxRef.current) {
+      messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
+    }
   };
 
   return (
@@ -163,7 +137,16 @@ const project = () => {
           )}
         </header>
         <div className='conversation-box flex-grow flex flex-col'>
-          <div ref={messageBox} className='message-box bg-slate-200 flex-grow flex flex-col overflow-y-auto max-h-[84vh] no-scrollbar'>
+          <div ref={messageBoxRef} className='message-box bg-slate-200 flex-grow flex flex-col overflow-y-auto max-h-[84vh] no-scrollbar'>
+            {
+              allChat.map((chat)=>(
+                <div key={chat._id || Math.random()} className={`max-w-56 flex flex-col p-2 bg-slate-400 w-fit rounded-md m-1 ${chat.sender._id === user._id?'ml-auto':''}`}>
+                   <small className='text-xm opacity-65'>{chat.sender.email}</small>
+                   <p className='text-sm break-words'>{chat.message}</p>
+                </div>
+              ))
+            }
+            
           </div>
           <div className="bg-zinc-300 input-field h-[8.2%] flex items-center justify-center gap-2">
             <input value={message} onChange={(e) => setMessage(e.target.value)} className='w-[88%] h-[70%] rounded-sm p-1 outline-none border-none placeholder:ring-black font-mono' type="text" placeholder='Enter your message' />
