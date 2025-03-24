@@ -5,13 +5,15 @@ import http from "http";
 import { Server } from "socket.io";
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
-import projectModel from '../backend/models/project.model.js'
+import projectModel from '../backend/models/project.model.js';
+
 
 import app from "./app.js";
 const port = process.env.PORT || 3000;
 
 
 const server = http.createServer(app);
+import {generateResult} from '../backend/services/ai.service.js';
 
 const io = new Server(server,
   {
@@ -20,7 +22,6 @@ const io = new Server(server,
     }
   }
 );
-
 
 io.use(async(socket, next) => {
   try {
@@ -59,7 +60,20 @@ io.on('connection', socket  => {
   console.log('user Connected')
   socket.join(socket.roomId);
 
-  socket.on('project-message', (data) => {
+  socket.on('project-message', async(data) => {
+    const message = data.message;
+    const aiIsPresentInMessage = message.includes('@ai');
+    if(aiIsPresentInMessage){
+     const prompt = message.replace('@ai','');
+     const result = await generateResult(prompt);
+     io.to(socket.roomId).emit('project-message',{
+      message:result,
+      sender:{
+        _id:'Ai',
+        email:'Ai'
+      }
+     }) 
+    }
     socket.broadcast.to(socket.roomId).emit('project-message', data)
   })
 
