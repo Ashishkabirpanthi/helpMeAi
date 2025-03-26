@@ -17,28 +17,28 @@ const project = () => {
   const [message, setMessage] = useState('')
   const { user } = useContext(UserContext);
   const messageBoxRef = useRef(null);
-  const [allChat ,setChat] = useState([])
+  const [allChat, setChat] = useState([])
 
   useEffect(() => {
     scrollToBottom();
   }, [allChat]);
-  
-  function saveMessage(){
-    axios.post('/project/chat',{
+
+  function saveMessage() {
+    axios.post('/project/chat', {
       projectId: location.state.pro._id,
       sender: user._id,
-      message:message,
+      message: message,
     }
-    ).then((res)=>{
+    ).then((res) => {
       console.log(res.data)
-    }).catch((error)=>{
+    }).catch((error) => {
       console.log(error)
     })
   }
-  function fetchChats(){
-    axios.get(`/project/get-chat/${location.state.pro._id}`).then((res)=>{
+  function fetchChats() {
+    axios.get(`/project/get-chat/${location.state.pro._id}`).then((res) => {
       setChat(res.data)
-    }).catch((error)=>{
+    }).catch((error) => {
       console.log(error);
     })
   }
@@ -74,9 +74,9 @@ const project = () => {
 
 
   const send = () => {
-    const messageObj = {message,sender:user,timestamp: new Date()};
+    const messageObj = { message, sender: user, timestamp: new Date() };
     sendMessage('project-message', messageObj);
-    setChat((prev) => [...prev,{...messageObj,sender:{_id:user._id,email:user.email}}]);
+    setChat((prev) => [...prev, { ...messageObj, sender: { _id: user._id, email: user.email } }]);
     setMessage("");
     saveMessage();
   }
@@ -85,7 +85,7 @@ const project = () => {
 
     initializeSocket(project._id);
     receiveMessage('project-message', data => {
-      setChat((prev)=>[...prev,data]);
+      setChat((prev) => [...prev, data]);
     })
 
     axios.get('/users/all').then((res) => {
@@ -115,6 +115,22 @@ const project = () => {
       hour12: true,
     });
   };
+
+  function SyntaxHighlightedCode(props) {
+  const ref = React.useRef(null); // ✅ Correct use of useRef
+
+  React.useEffect(() => {
+    if (ref.current && props.className?.includes('lang-') && window.hljs) {
+      window.hljs.highlightElement(ref.current);
+
+      // hljs won't reprocess the element unless this attribute is removed
+      ref.current.removeAttribute('data-highlighted');
+    }
+  }, [props.className, props.children]);
+
+  return <code {...props} ref={ref} style={{ overflow: 'hidden', whiteSpace: 'pre-wrap', scrollbarWidth: 'none',background: 'transparent' }} />;
+}
+
 
   return (
     <main className='w-screen h-screen flex'>
@@ -149,19 +165,24 @@ const project = () => {
         <div className='conversation-box flex-grow flex flex-col'>
           <div ref={messageBoxRef} className='message-box bg-slate-200 flex-grow flex flex-col overflow-y-auto max-h-[84vh] no-scrollbar'>
             {
-              allChat.map((chat)=>(
-                <div key={chat._id || Math.random()} className={`max-w-80 flex flex-col p-2 bg-slate-400 w-fit rounded-md m-1 ${chat.sender._id === user._id?'ml-auto':''}`}>
-                   <small className='text-xm opacity-65'>{chat.sender.email}</small>
-                   <p className='text-sm break-words'>
-                    {chat.sender._id === 'AI'?<div className='bg-black text-white rounded-md p-2 min-w-72'>
-                    <Markdown>{chat.message}</Markdown>
-                    </div>:chat.message}
-                    </p>
-                   <p className='text-[10px] opacity-65 text-right'>{formatTime(chat.timestamp)}</p>
+              allChat.map((chat) => (
+                <div key={chat._id || Math.random()} className={`max-w-80 flex flex-col p-2 bg-slate-400 w-fit rounded-md m-1 ${chat.sender._id === user._id ? 'ml-auto' : ''}`}>
+                  <small className='text-xm opacity-65'>{chat.sender.email}</small>
+                  <p className='text-sm break-words'>
+                    {chat.sender._id === 'AI' ? <div className='bg-slate-900 text-white rounded-md p-2 min-w-72 overflow-auto no-scrollbar'>
+                      <Markdown children={chat.message}
+                        options={{
+                          overrides: {
+                            code: SyntaxHighlightedCode,
+                          },
+                        }}>{chat.message}</Markdown>
+                    </div> : chat.message}
+                  </p>
+                  <p className='text-[10px] opacity-65 text-right'>{formatTime(chat.timestamp)}</p>
                 </div>
               ))
             }
-            
+
           </div>
           <div className="bg-zinc-300 input-field h-[8.2%] flex items-center justify-center gap-2">
             <input value={message} onChange={(e) => setMessage(e.target.value)} className='w-[88%] h-[70%] rounded-sm p-1 outline-none border-none placeholder:ring-black font-mono' type="text" placeholder='Enter your message' />
