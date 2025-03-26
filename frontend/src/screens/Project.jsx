@@ -117,8 +117,7 @@ const project = () => {
   };
 
   function SyntaxHighlightedCode(props) {
-  const ref = React.useRef(null); // ✅ Correct use of useRef
-
+  const ref = React.useRef(null);
   React.useEffect(() => {
     if (ref.current && props.className?.includes('lang-') && window.hljs) {
       window.hljs.highlightElement(ref.current);
