@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import axios from '../config/axios';
 import { initializeSocket, receiveMessage, sendMessage } from '../config/socket';
 import { UserContext } from '../context/user.context';
+import Markdown from 'markdown-to-jsx'
 
 
 const project = () => {
@@ -73,9 +74,9 @@ const project = () => {
 
 
   const send = () => {
-    const messageObj = {message,sender:user};
+    const messageObj = {message,sender:user,timestamp: new Date()};
     sendMessage('project-message', messageObj);
-    setChat((prev) => [...prev,{...messageObj,sender:{_id:user._id,email:user.email},timestamp: new Date()}]);
+    setChat((prev) => [...prev,{...messageObj,sender:{_id:user._id,email:user.email}}]);
     setMessage("");
     saveMessage();
   }
@@ -149,9 +150,13 @@ const project = () => {
           <div ref={messageBoxRef} className='message-box bg-slate-200 flex-grow flex flex-col overflow-y-auto max-h-[84vh] no-scrollbar'>
             {
               allChat.map((chat)=>(
-                <div key={chat._id || Math.random()} className={`max-w-56 flex flex-col p-2 bg-slate-400 w-fit rounded-md m-1 ${chat.sender._id === user._id?'ml-auto':''}`}>
+                <div key={chat._id || Math.random()} className={`max-w-80 flex flex-col p-2 bg-slate-400 w-fit rounded-md m-1 ${chat.sender._id === user._id?'ml-auto':''}`}>
                    <small className='text-xm opacity-65'>{chat.sender.email}</small>
-                   <p className='text-sm break-words'>{chat.message}</p>
+                   <p className='text-sm break-words'>
+                    {chat.sender._id === 'AI'?<div className='bg-black text-white rounded-md p-2 min-w-72'>
+                    <Markdown>{chat.message}</Markdown>
+                    </div>:chat.message}
+                    </p>
                    <p className='text-[10px] opacity-65 text-right'>{formatTime(chat.timestamp)}</p>
                 </div>
               ))
